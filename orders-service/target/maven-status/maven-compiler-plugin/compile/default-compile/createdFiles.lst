@@ -1,0 +1,15 @@
+com\appsdeveloperblog\orders\service\OrderServiceImpl.class
+com\appsdeveloperblog\orders\dto\CreateOrderRequest.class
+com\appsdeveloperblog\orders\dao\jpa\repository\OrderRepository.class
+com\appsdeveloperblog\orders\service\OrderHistoryService.class
+com\appsdeveloperblog\orders\service\OrderHistoryServiceImpl.class
+com\appsdeveloperblog\orders\dao\jpa\repository\OrderHistoryRepository.class
+com\appsdeveloperblog\orders\dto\CreateOrderResponse.class
+com\appsdeveloperblog\orders\dto\OrderHistory.class
+com\appsdeveloperblog\orders\config\KafkaConfig.class
+com\appsdeveloperblog\orders\dao\jpa\entity\OrderEntity.class
+com\appsdeveloperblog\orders\service\OrderService.class
+com\appsdeveloperblog\orders\dto\OrderHistoryResponse.class
+com\appsdeveloperblog\orders\dao\jpa\entity\OrderHistoryEntity.class
+com\appsdeveloperblog\orders\OrdersServiceApplication.class
+com\appsdeveloperblog\orders\web\controller\OrdersController.class
