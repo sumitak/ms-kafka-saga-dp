@@ -1,0 +1,9 @@
+com\appsdeveloperblog\products\dto\ProductCreationResponse.class
+com\appsdeveloperblog\products\dao\jpa\entity\ProductEntity.class
+com\appsdeveloperblog\products\dto\ProductCreationRequest.class
+com\appsdeveloperblog\products\config\KafkaConfig.class
+com\appsdeveloperblog\products\dao\jpa\repository\ProductRepository.class
+com\appsdeveloperblog\products\service\ProductServiceImpl.class
+com\appsdeveloperblog\products\web\controller\ProductsController.class
+com\appsdeveloperblog\products\service\ProductService.class
+com\appsdeveloperblog\products\ProductsServiceApplication.class
