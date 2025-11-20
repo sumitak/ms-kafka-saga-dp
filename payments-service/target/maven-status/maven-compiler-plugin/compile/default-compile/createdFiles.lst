@@ -1,9 +1,0 @@
-com\appsdeveloperblog\payments\service\CreditCardProcessorRemoteService.class
-com\appsdeveloperblog\payments\dao\jpa\repository\PaymentRepository.class
-com\appsdeveloperblog\payments\config\ApplicationConfig.class
-com\appsdeveloperblog\payments\config\KafkaConfig.class
-com\appsdeveloperblog\payments\dao\jpa\entity\PaymentEntity.class
-com\appsdeveloperblog\payments\service\CreditCardProcessorRemoteServiceImpl.class
-com\appsdeveloperblog\payments\PaymentsServiceApplication.class
-com\appsdeveloperblog\payments\service\PaymentServiceImpl.class
-com\appsdeveloperblog\payments\service\PaymentService.class
