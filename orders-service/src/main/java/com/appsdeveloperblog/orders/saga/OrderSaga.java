@@ -1,12 +1,7 @@
 package com.appsdeveloperblog.orders.saga;
 
-import com.appsdeveloperblog.core.dto.commands.ApprovedOrderCommand;
-import com.appsdeveloperblog.core.dto.commands.ProcessPaymentCommand;
-import com.appsdeveloperblog.core.dto.commands.ReserveProductCommand;
-import com.appsdeveloperblog.core.dto.events.OrderApprovedEvent;
-import com.appsdeveloperblog.core.dto.events.OrderCreatedEvent;
-import com.appsdeveloperblog.core.dto.events.PaymentProcessedEvent;
-import com.appsdeveloperblog.core.dto.events.ProductReservedEvent;
+import com.appsdeveloperblog.core.dto.commands.*;
+import com.appsdeveloperblog.core.dto.events.*;
 import com.appsdeveloperblog.core.types.OrderStatus;
 import com.appsdeveloperblog.orders.service.OrderHistoryService;
 import org.slf4j.Logger;
@@ -114,4 +109,23 @@ private final Logger logger = LoggerFactory.getLogger(OrderSaga.class);
         logger.info("**** Order saga completed for order id: " + event.getOrderId());
     }
 
+    @KafkaHandler
+    public void handleEvent(@Payload PaymentsFailedEvent event) {
+        //default handler
+        logger.info("**** Received PaymentsFailedEvent event: " + event);
+        CancelProductReservationCommand command = new CancelProductReservationCommand(
+                event.getProductId(),
+                event.getOrderId(),
+                event.getProductQuantity());
+        kafkaTemplate.send(productCommandTopicName, command);
+    }
+
+    @KafkaHandler
+    public void handleEvent(@Payload ProductReservationCancelledEvent event) {
+        //default handler
+        logger.info("**** Received ProductReservationCancelledEvent event: " + event);
+        RejectOrderCommand rejectOrderCommand = new RejectOrderCommand(event.getOrderId());
+        kafkaTemplate.send(ordersCommandsTopicName, rejectOrderCommand);
+        orderHistoryService.add(event.getOrderId(), OrderStatus.REJECTED);
+    }
 }

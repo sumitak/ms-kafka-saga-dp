@@ -71,4 +71,12 @@ public class OrderServiceImpl implements OrderService {
 
     }
 
+    @Override
+    public void rejectOrder(UUID orderId) {
+        OrderEntity orderEntity = orderRepository.findById(orderId).orElse(null);
+        Assert.notNull(orderEntity, "Order not found with id: " + orderId);
+        orderEntity.setStatus(OrderStatus.REJECTED);
+        orderRepository.save(orderEntity);
+    }
+
 }

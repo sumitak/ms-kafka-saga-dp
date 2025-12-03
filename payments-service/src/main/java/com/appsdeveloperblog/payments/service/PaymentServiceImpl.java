@@ -22,7 +22,7 @@ public class PaymentServiceImpl implements PaymentService {
 
         BigDecimal totalPrice = payment.getProductPrice()
                 .multiply(new BigDecimal(payment.getProductQuantity()));
-      //  ccpRemoteService.process(new BigInteger(SAMPLE_CREDIT_CARD_NUMBER), totalPrice);
+        ccpRemoteService.process(new BigInteger(SAMPLE_CREDIT_CARD_NUMBER), totalPrice);
         PaymentEntity paymentEntity = new PaymentEntity();
         BeanUtils.copyProperties(payment, paymentEntity);
         paymentRepository.save(paymentEntity);

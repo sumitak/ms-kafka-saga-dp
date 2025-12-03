@@ -1,6 +1,7 @@
 package com.appsdeveloperblog.orders.service.handler;
 
 import com.appsdeveloperblog.core.dto.commands.ApprovedOrderCommand;
+import com.appsdeveloperblog.core.dto.commands.RejectOrderCommand;
 import com.appsdeveloperblog.orders.saga.OrderSaga;
 import com.appsdeveloperblog.orders.service.OrderService;
 import org.slf4j.Logger;
@@ -26,6 +27,12 @@ public class OrderCommandsHandler {
         logger.info("Received approved order command {}", approvedOrderCommand);
         orderService.approveOrder(approvedOrderCommand.getOrderId());;
         logger.info("Approved order command {}", approvedOrderCommand);
+    }
+
+    @KafkaHandler
+    public void handleCommand(@Payload RejectOrderCommand rejectOrderCommand) {
+        orderService.rejectOrder(rejectOrderCommand.getOrderId());
+        logger.info("Rejected order command {}", rejectOrderCommand);
     }
 
 }
