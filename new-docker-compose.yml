@@ -1,0 +1,135 @@
+version: "3.8"
+
+services:
+  kafka-1:
+    image: confluentinc/cp-kafka:latest
+    container_name: kafka-1
+    ports:
+       #right side of the port no. is the port on which Kafka broker is running inside Docker container
+      # left side of the port no. on which Kafka Broker will be available on the host machine
+      - "9092:9092"
+      #kraft configuration variables are specified under environment
+    environment:
+      KAFKA_NODE_ID: 1
+      #all kafka nodes or brrkers should be assigned same cluster id because they are part of same cluster
+      #this is generated  using the command "kafka-storage.sh random-uuid"
+      CLUSTER_ID: "9n_FfxJ1Q4KvfoLUCYU-kA"
+      #this variable specifies the roles of this kafka node in the cluster
+      #same node can have multiple roles like broker and controller
+      #1. controller to manage cluster coordination and metadata, ensures data replication and
+      # it facilitates failover mechanisms.
+      #2. broker to handle message storage and client communication
+      KAFKA_PROCESS_ROLES: "broker,controller"
+
+      # Listeners
+      #define network interfaces, port numbers and protocols for communication
+      #producers and consumers can connect to Kafka brokers and this is done through EXTERNAL listener
+      #it defines available listeners and their endpoints
+      #INTERNAL listener is used for inter-broker communication within the Kafka cluster. It is used for unencrypted communication between brokers/clusters.
+      #CONTROLLER listener is used for internal co-ordination among brokers and external, which is also a custom name.
+      #EXTERNAL listener is used for communication between clients (producers and consumers) and the Kafka brokers. It will be used as external network listener,
+      #and it will be used to allow external clients from outside docker container to connect to Kafka broker inside docker container.
+      #EXTERNAL port no. 9092 is mapped to host machine port no. 9092
+      #Here port no.s are different to avoid conflicts between different listeners
+      #format is <listener_name>://<host>:<port>
+      #in this case the hostname is 0.0.0.0 which means Kafka binds all available network interfaces within the container, and
+      #this means all internal hostnames and all internal IP addresses.
+      KAFKA_LISTENERS: "INTERNAL://0.0.0.0:19092,EXTERNAL://0.0.0.0:9092,CONTROLLER://0.0.0.0:29093"
+
+      #this configuration property is used to specify addresses that client used to connect to Kafka broker
+      #INTERNAL listener:it is for internal communication between brokers within the cluster.It's host name same as the container name kafka-1
+      #So, other clients within this Docker network can talk to this broker using this host name
+      #EXTERNAL listener: using localhost as a hostname, because the container is running on local computer
+      #clinet can use these endpoints to connect to Kafka broker from outside the Docker container
+      #the host name can be read from environment variable as EXTERNAL://${HOSTNAME:-localhost}:9092": here if HOSTNAME variable is not set, it will default to localhost
+      KAFKA_ADVERTISED_LISTENERS: "INTERNAL://kafka-1:19092,EXTERNAL://localhost:9092"
+
+      #below configuration property maps between listener names and valid security protocols
+      #There are other security protocols like SSL, SASL_SSL, SASL_PLAINTEXT but here PLAINTEXT is used for simplicity
+      #PLAINTEXT means no encryption and no authentication and is used for development and testing purposes only
+      #for production environments, it is recommended to use secure protocols like SSL or SASL_SSL to ensure data confidentiality and integrity
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT,CONTROLLER:PLAINTEXT"
+
+      #specifies which listener will be used for inter-broker communication and assigning a custom name INTERNAL to the inter-broker listener
+      KAFKA_INTER_BROKER_LISTENER_NAME: "INTERNAL"
+
+      #assigning a custom name CONTROLLER to the controller listener
+      KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
+
+      # Quorum voters
+      #it consists of multiple servers that participate in maintaining the cluster state and handling client requests
+      #each voter is identified by a unique id and the host:port combination
+      #this configuration ensures that all three kafka brokers are part of the controller quorum
+      #The controller quorum is a group of servers or a group of voters that collectively act as a brain of Kafka cluster.
+      #They work together to maintain order, they make critical decisions and they ensure smooth operation of the cluster.
+      #Here port no.s are different, these are used specifically for controller communication in Kraft mode
+      KAFKA_CONTROLLER_QUORUM_VOTERS: "1@kafka-1:29093,2@kafka-1:29093"
+
+      # Replication configs
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 3
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 2
+
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+     # KAFKA_LOG_DIRS: /var/lib/kafka/data
+    #By default Kafka stores its data inside the container's filesystem. To ensure data persistence across container restarts and to avoid data loss,
+    #it is recommended to use Docker volumes to persist Kafka data on the host machine.
+    #This way, even if the Docker container is removed or recreated, the Kafka data will remain intact on the host machine.
+    volumes:
+      #left side is the path on the host machine where Kafka data will be stored
+        #right side is the path inside the Docker container where Kafka stores its data
+     # - /Users/ksumi/kafka/logs/docker-container/logs:/var/lib/kafka/data
+      - "C:/Users/ksumi/kafka/logs/docker-container/logs/server1:/var/lib/kafka/data"
+
+  kafka-2:
+    image: confluentinc/cp-kafka:latest
+    container_name: kafka-2
+    ports:
+      - "9094:9094"
+
+    environment:
+      KAFKA_NODE_ID: 2
+      CLUSTER_ID: "9n_FfxJ1Q4KvfoLUCYU-kA"
+      KAFKA_PROCESS_ROLES: "broker,controller"
+      KAFKA_LISTENERS: "INTERNAL://0.0.0.0:19092,EXTERNAL://0.0.0.0:9094,CONTROLLER://0.0.0.0:29093"
+      KAFKA_ADVERTISED_LISTENERS: "INTERNAL://kafka-2:19092,EXTERNAL://localhost:9094"
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT,CONTROLLER:PLAINTEXT"
+      KAFKA_INTER_BROKER_LISTENER_NAME: "INTERNAL"
+      KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
+      KAFKA_CONTROLLER_QUORUM_VOTERS: "1@kafka-1:29093,2@kafka-2:29093,3@kafka-3:29093"
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 3
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 2
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+    volumes:
+      - "C:/Users/ksumi/kafka/logs/docker-container/logs/server-2:/var/lib/kafka/data"
+
+  kafka-3:
+    image: confluentinc/cp-kafka:latest
+    container_name: kafka-3
+    ports:
+      - "9096:9096"
+
+    environment:
+      KAFKA_NODE_ID: 3
+      CLUSTER_ID: "9n_FfxJ1Q4KvfoLUCYU-kA"
+      KAFKA_PROCESS_ROLES: "broker,controller"
+      KAFKA_LISTENERS: "INTERNAL://0.0.0.0:19092,EXTERNAL://0.0.0.0:9096,CONTROLLER://0.0.0.0:29093"
+      KAFKA_ADVERTISED_LISTENERS: "INTERNAL://kafka-3:19092,EXTERNAL://localhost:9096"
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT,CONTROLLER:PLAINTEXT"
+      KAFKA_INTER_BROKER_LISTENER_NAME: "INTERNAL"
+      KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
+      KAFKA_CONTROLLER_QUORUM_VOTERS: "1@kafka-1:29093,2@kafka-2:29093,3@kafka-3:29093"
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 3
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 2
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+    volumes:
+      - "C:/Users/ksumi/kafka/logs/docker-container/logs/server-3:/var/lib/kafka/data"
+
+#volumes:
+ # kafka1_data:
+
